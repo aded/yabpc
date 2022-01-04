@@ -67,18 +67,18 @@ function yabpc()
                 git_status_del=""
         SegmentGit+=" $(__git_ps1 | tr -d '( )')"
         git_status="$(git status --porcelain --branch)"
-        git_status_ahead="$(grep -o -E '\[ahead [0-9]+\]' <<< "$git_status")"
-        git_status_behind="$(grep -o -E '\[behind [0-9]+\]' <<< "$git_status")"
+        git_status_ahead="$(grep -o -E 'ahead [0-9]+' <<< "$git_status")"
+        git_status_behind="$(grep -o -E 'behind [0-9]+' <<< "$git_status")"
         git_status_mod="$(grep -c -E '^[ MTARC]M' <<< "$git_status")"
         git_status_untracked="$(grep -c -E '^\?\?' <<< "$git_status")"
         git_status_del="$(grep -c -E '^[ MTARC]D' <<< "$git_status")"
         git_status_tobecommitted="$(grep -c -E '^[MTARCD]' <<< "$git_status")"
         [ "$git_status_tobecommitted" -gt "0" ] &&
             SegmentGit+="*"
-        [ -n "$git_status_ahead" ] &&
-            SegmentGit+="[+${git_status_ahead//[!0-9]/}]"
         [ -n "$git_status_behind" ] &&
             SegmentGit+="[-${git_status_behind//[!0-9]/}]"
+        [ -n "$git_status_ahead" ] &&
+            SegmentGit+="[+${git_status_ahead//[!0-9]/}]"
         [ "$git_status_untracked" -gt "0" ] &&
             SegmentGit+=" ?${git_status_untracked}"
         [ "$git_status_mod" -gt "0" ] &&
