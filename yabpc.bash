@@ -51,38 +51,51 @@ function yabpc()
     declare   YinYang=$'\ufb7e'
     ## Segments
     declare  Segments=(
-        "${White}${Folder}${Bold} \w${Reset}"
+        # "${White}${Bold}\w${Reset}"
+        "${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]"
     )
 
     ## Git
     [ "$(git rev-parse --is-inside-work-tree 2>/dev/null)" == "true" ] && {
         declare SegmentGit="${Blue}${Bold}${Invert}" \
                 git_status="" \
+                git_status_ahead="" \
+                git_status_behind="" \
                 git_status_mod="" \
-                git_status_new="" \
+                git_status_untracked="" \
+                git_status_tobecommitted="" \
                 git_status_del=""
         SegmentGit+=" $(__git_ps1 | tr -d '( )')"
-        git_status="$(git status --porcelain)"
-        git_status_mod="$(grep -c -E '^ M' <<< "$git_status")"
-        git_status_new="$(grep -c -E '^\?\?' <<< "$git_status")"
-        git_status_del="$(grep -c -E '^ D' <<< "$git_status")"
+        git_status="$(git status --porcelain --branch)"
+        git_status_ahead="$(grep -o -E '\[ahead [0-9]+\]' <<< "$git_status")"
+        git_status_behind="$(grep -o -E '\[behind [0-9]+\]' <<< "$git_status")"
+        git_status_mod="$(grep -c -E '^[ MTARC]M' <<< "$git_status")"
+        git_status_untracked="$(grep -c -E '^\?\?' <<< "$git_status")"
+        git_status_del="$(grep -c -E '^[ MTARC]D' <<< "$git_status")"
+        git_status_tobecommitted="$(grep -c -E '^[MTARCD]' <<< "$git_status")"
+        [ "$git_status_tobecommitted" -gt "0" ] &&
+            SegmentGit+="*"
+        [ -n "$git_status_ahead" ] &&
+            SegmentGit+="[+${git_status_ahead//[!0-9]/}]"
+        [ -n "$git_status_behind" ] &&
+            SegmentGit+="[-${git_status_behind//[!0-9]/}]"
+        [ "$git_status_untracked" -gt "0" ] &&
+            SegmentGit+=" ?${git_status_untracked}"
         [ "$git_status_mod" -gt "0" ] &&
-            SegmentGit+=" *${git_status_mod}"
-        [ "$git_status_new" -gt "0" ] &&
-            SegmentGit+=" +${git_status_new}"
+            SegmentGit+=" M${git_status_mod}"
         [ "$git_status_del" -gt "0" ] &&
-            SegmentGit+=" -${git_status_del}"
+            SegmentGit+=" D${git_status_del}"
         Segments+=("$SegmentGit ${Reset}")
     }
 
     ## Python venv
 	[ -n "$VIRTUAL_ENV" ] && {
-        Segments+=("${Cyan}${Bold}${Invert} ${Python} $(basename "$VIRTUAL_ENV") ${Reset}")
+        Segments+=("${Cyan}${Bold}${Invert} $(basename "$VIRTUAL_ENV") ${Reset}")
     }
 
     ## Conda
     [ -n "$CONDA_PROMPT_MODIFIER" ] && {
-        Segments+=("${Cyan}${Bold}${Invert} ${DevPython} $CONDA_PROMPT_MODIFIER${Reset}")
+        Segments+=("${Cyan}${Bold}${Invert} ${CONDA_PROMPT_MODIFIER//[\(\) ]/} ${Reset}")
     }
 
     PS1="$Title"
@@ -91,8 +104,8 @@ function yabpc()
     else
         PS1+="\n"
     fi
-    PS1+="${VertBar} ${Segments[*]}\n"
-    PS1+="${VertBar}${Reset} "
+    PS1+="${Segments[*]}\n"
+    PS1+="${Reset}\$ "
 
-    PS2="${VertBar} "
+    PS2="  "
 }
