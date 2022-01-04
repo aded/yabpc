@@ -105,7 +105,7 @@ function yabpc()
         PS1+="\n"
     fi
     PS1+="${Segments[*]}\n"
-    PS1+="${Reset}\$ "
+    PS1+="${Bold}\$${Reset} "
 
     PS2="  "
 }
