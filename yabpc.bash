@@ -89,12 +89,12 @@ function yabpc()
     }
 
     ## Python venv
-	[ -n "$VIRTUAL_ENV" ] && {
+	[ -n "${VIRTUAL_ENV+x}" ] && {
         Segments+=("${Cyan}${Bold}${Invert} $(basename "$VIRTUAL_ENV") ${Reset}")
     }
 
     ## Conda
-    [ -n "$CONDA_PROMPT_MODIFIER" ] && {
+    [ -n "${CONDA_PROMPT_MODIFIER+x}" ] && {
         Segments+=("${Cyan}${Bold}${Invert} ${CONDA_PROMPT_MODIFIER//[\(\) ]/} ${Reset}")
     }
 
