@@ -10,7 +10,8 @@
 function yabpc()
 {
     declare  ExitCode="$?"
-    declare     Title="\001\e]2;\w\a\002"
+    ## Title (see Ubuntu's .bashrc file)
+    declare     Title="\001\e]2;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\002"
     ## Formatting
     declare     Blink="\001\e[5m\002"
     declare      Bold="\001\e[1m\002"
